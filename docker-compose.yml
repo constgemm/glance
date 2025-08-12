@@ -10,6 +10,7 @@ services:
     # user: "1000:1000"  # Replace with your UID:GID
     # ports:
     #   - 8080:8080
+    network_mode: service:tailscale
     depends_on:
       - tailscale
 
