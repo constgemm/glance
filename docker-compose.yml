@@ -3,16 +3,19 @@ name: glance
 services:
   glance:
     container_name: ${service_name}_server
-    image: glanceapp/glance
+    # image: glanceapp/glance
+    image: nicolargo/glances:latest
     restart: always
     volumes:
       - ./config:/app/config
     # user: "1000:1000"  # Replace with your UID:GID
     # ports:
     #   - 8080:8080
-    network_mode: service:tailscale
+    network_mode: "service:tailscale"
     depends_on:
       - tailscale
+    command: glances -w --bind 0.0.0.0
+
 
   tailscale:
     image: tailscale/tailscale:stable
