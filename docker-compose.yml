@@ -1,0 +1,46 @@
+name: glance
+
+services:
+  glance:
+    container_name: ${service_name}_server
+    image: glanceapp/glance
+    restart: always
+    volumes:
+      - ./config:/app/config
+    user: "1000:1000"  # Replace with your UID:GID
+    # ports:
+    #   - 8080:8080
+    depends_on:
+      - tailscale
+
+  tailscale:
+    image: tailscale/tailscale:stable
+    user: "1000:1000"  # Replace with your UID:GID
+    container_name: ${service_name}_tailscale
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}?ephemeral=false
+      - TS_EXTRA_ARGS=--advertise-tags=tag:container
+      - TS_SERVE_CONFIG=/config/tailscale.json
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=${service_name}
+    volumes:
+      - ${PWD}/${service_name}_tailscale/state:/var/lib/tailscale
+      - ./tailscale.json:/config/tailscale.json
+      - /dev/net/tun:/dev/net/tun
+    # cap_drop:
+    #  - ALL
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped
+    #command: /bin/sh -c "tailscale funnel 8096"
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    healthcheck:
+      test: tailscale status --peers=false --json | grep -q 'Online.*true'
+    deploy:
+      resources:
+        limits:
+          pids: 100
