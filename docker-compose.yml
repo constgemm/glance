@@ -7,7 +7,7 @@ services:
     restart: always
     volumes:
       - ./config:/app/config
-    user: "1000:1000"  # Replace with your UID:GID
+    # user: "1000:1000"  # Replace with your UID:GID
     # ports:
     #   - 8080:8080
     depends_on:
@@ -15,7 +15,6 @@ services:
 
   tailscale:
     image: tailscale/tailscale:stable
-    user: "1000:1000"  # Replace with your UID:GID
     container_name: ${service_name}_tailscale
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}?ephemeral=false
@@ -33,7 +32,6 @@ services:
       - net_admin
       - sys_module
     restart: unless-stopped
-    #command: /bin/sh -c "tailscale funnel 8096"
     security_opt:
       - no-new-privileges:true
     labels:
